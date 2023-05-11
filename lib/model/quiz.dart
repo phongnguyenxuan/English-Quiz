@@ -1,17 +1,21 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'package:hive/hive.dart';
+part 'quiz.g.dart';
 
+@HiveType(typeId: 2)
 class Quiz {
+  @HiveField(0)
   int id;
+  @HiveField(1)
   int categoryId;
+  @HiveField(2)
   String name;
-  String questionsURL;
 
   Quiz({
     required this.id,
     required this.categoryId,
     required this.name,
-    required this.questionsURL,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,7 +23,6 @@ class Quiz {
       'id': id,
       'category_id': categoryId,
       'name': name,
-      'questionsURL': questionsURL,
     };
   }
 
@@ -28,7 +31,6 @@ class Quiz {
       id: map['id'] as int,
       categoryId: map['category_id'] as int,
       name: map['name'] as String,
-      questionsURL: map['questionsURL'] as String,
     );
   }
 
@@ -36,9 +38,4 @@ class Quiz {
 
   factory Quiz.fromJson(String source) =>
       Quiz.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() {
-    return 'Quiz(id: $id, category_id: $categoryId, name: $name, questionsURL: $questionsURL)';
-  }
 }

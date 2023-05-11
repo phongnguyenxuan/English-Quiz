@@ -1,48 +1,38 @@
 import 'dart:convert';
-
-import 'package:english_quiz/model/categories.dart' as category;
-import 'package:english_quiz/model/quiz.dart';
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:english_quiz/utils/constant_value.dart';
 import 'package:http/http.dart' as http;
 
+enum APIMEthod { GET, POST }
+
 class ApiService {
-  Future<List<category.Category>> getCategories() async {
-    try {
-      var url = Uri.parse(
-          'https://quiz-prod.techlead.vn/services/quizservices/api/v1/categories?categoryName=English');
-      var response = await http.get(url, headers: header);
-      int status = response.statusCode;
-      if (status == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        List l = data["categories"];
-        List<category.Category> listCate = List<category.Category>.from(
-            l.map((e) => category.Category.fromMap(e)));
-        return listCate;
-      } else {
-        throw Exception("fail");
-      }
-    } catch (_) {
-      return [];
-    }
+  Map<String, String> header(String clientID, String time, String checkSum) {
+    return {
+      "clientId": clientID,
+      "time": time,
+      "checkSum": checkSum,
+    };
   }
 
-  //get quiz data
-  Future<List<Quiz>> getQuiz(int categoryId) async {
+  getAPI(String url, String extraURL) async {
     try {
-      var url =
-          Uri.parse('https://quiz.techlead.vn/quiz?categoryId=$categoryId');
-      var response = await http.get(url, headers: header);
+      Uri uri = Uri.parse(url);
+      //covert time to second
+      DateTime now = DateTime.now();
+      String time = (now.millisecondsSinceEpoch ~/ 1000).toString();
+      String md5String = 'GET$extraURL$clientId$secret$time';
+      String checkSum = crypto.md5.convert(utf8.encode(md5String)).toString();
+      var response =
+          await http.get(uri, headers: header(clientId, time, checkSum));
       int status = response.statusCode;
       if (status == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        List l = data["quiz"];
-        List<Quiz> listQuiz = List<Quiz>.from(l.map((e) => Quiz.fromMap(e)));
-        return listQuiz;
+        String data = response.body;
+        return data;
       } else {
-        throw Exception("fail");
+        return null;
       }
     } catch (_) {
-      return [];
+      return null;
     }
   }
 }
