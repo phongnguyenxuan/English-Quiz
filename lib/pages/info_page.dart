@@ -14,96 +14,98 @@ class InfoPage extends StatefulWidget {
 class _InfoPageState extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kbackgroundColor,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'About Us',
-          style: TextStyle(color: Colors.white, fontSize: 20),
-        ),
-      ),
-      body: Column(
-        children: [
-          //logo
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Center(
-              child: SizedBox(
-                  width: 150,
-                  height: 150,
-                  child: Image.asset('assets/images/logo.png')),
-            ),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: kbackgroundColor,
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text(
+            'About Us',
+            style: TextStyle(color: Colors.white, fontSize: 20),
           ),
-          //body
-          Expanded(
-            child: ListView(
-              children: [
-                ListTile(
-                  title: BodyItem(
-                    title: 'Version',
-                    bodyText: 'English quiz 1.3',
-                    bodyStyle: const TextStyle(
-                        fontSize: bodyFontSize, color: Colors.grey),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: BodyItem(
-                    title: 'Website',
-                    bodyText:
-                        'https://www.facebook.com/English-Quiz-101331054853888',
-                    bodyStyle: const TextStyle(
-                        fontSize: bodyFontSize,
-                        color: kPrimaryColor,
-                        decoration: TextDecoration.underline),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: BodyItem(
-                    title: 'Rate US',
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: BodyItem(
-                    title: 'Remove Ads',
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: BodyItem(
-                    title: 'Terms of Use',
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: BodyItem(
-                    title: 'Privacy Policy',
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+        ),
+        body: Column(
+          children: [
+            //logo
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Center(
+                child: SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: Image.asset('assets/images/logo.png')),
+              ),
             ),
-          )
-        ],
+            //body
+            Expanded(
+              child: ListView(
+                children: [
+                  ListTile(
+                    title: BodyItem(
+                      title: 'Version',
+                      bodyText: 'English quiz 1.3',
+                      bodyStyle: const TextStyle(
+                          fontSize: bodyFontSize, color: Colors.grey),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: BodyItem(
+                      title: 'Website',
+                      bodyText:
+                          'https://www.facebook.com/English-Quiz-101331054853888',
+                      bodyStyle: const TextStyle(
+                          fontSize: bodyFontSize,
+                          color: kPrimaryColor,
+                          decoration: TextDecoration.underline),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: BodyItem(
+                      title: 'Rate US',
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: BodyItem(
+                      title: 'Remove Ads',
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: BodyItem(
+                      title: 'Terms of Use',
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: BodyItem(
+                      title: 'Privacy Policy',
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

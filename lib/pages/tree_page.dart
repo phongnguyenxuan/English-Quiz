@@ -1,6 +1,8 @@
-import 'package:english_quiz/database/categoryDatabase.dart';
+import 'package:english_quiz/database/Database.dart';
 import 'package:english_quiz/pages/home_page.dart';
 import 'package:flutter/material.dart';
+
+import '../utils/color.dart';
 
 class TreePage extends StatefulWidget {
   const TreePage({super.key});
@@ -18,18 +20,34 @@ class _TreePageState extends State<TreePage> {
 
   loadData() async {
     if (myBox.isEmpty) {
-      await CategoryDatabase().createDefaultDB();
+      await Database().createDefaultDB();
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     if (myBox.isEmpty) {
-      return Container(
-        color: Colors.red,
-        child: const Center(
-          child: CircularProgressIndicator(),
+      return SafeArea(
+        child: Scaffold(
+          backgroundColor: kbackgroundColor,
+          body: SizedBox(
+            width: size.width,
+            height: size.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 200,
+                  height: 200,
+                  child: Image.asset('assets/images/logo.png'),
+                ),
+                const SizedBox(width: 200, child: LinearProgressIndicator()),
+              ],
+            ),
+          ),
         ),
       );
     } else {

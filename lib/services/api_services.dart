@@ -3,8 +3,6 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:english_quiz/utils/constant_value.dart';
 import 'package:http/http.dart' as http;
 
-enum APIMEthod { GET, POST }
-
 class ApiService {
   Map<String, String> header(String clientID, String time, String checkSum) {
     return {

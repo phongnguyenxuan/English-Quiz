@@ -40,6 +40,7 @@ dependencies:
   path_provider: ^2.0.15
   crypto: ^3.0.3
   intl: ^0.18.1
+  lottie: ^2.3.2
 
 dev_dependencies:
   hive_generator: any
@@ -69,6 +70,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/animation/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

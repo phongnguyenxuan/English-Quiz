@@ -1,8 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:english_quiz/database/categoryDatabase.dart';
+import 'package:english_quiz/database/Database.dart';
 import 'package:english_quiz/model/categories.dart' as category;
+import 'package:english_quiz/model/question.dart';
 import 'package:english_quiz/pages/info_page.dart';
+import 'package:english_quiz/pages/play_page.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:english_quiz/utils/font.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +22,31 @@ class _MyHomePageState extends State<MyHomePage> {
   //
   int categoryID = 3;
   List<category.Category> categoryList =
-      List.from(CategoryDatabase().loadData(categoryDB));
+      List.from(Database().loadData(categoryDB));
+  //
   List<Quiz> quizList = [];
+  //
+  List<Question> questionsList = [];
   final myBox = Hive.box('myBox');
+  //
+  String name = Database().loadData(nameDB);
+  //
+  final TextEditingController nameController = TextEditingController();
+  //
+  bool isEmpty = false;
+  //
+
   @override
   void initState() {
-    quizList = List.from(CategoryDatabase().loadData('${quizDB}$categoryID'));
+    quizList = List.from(Database().loadData('$quizDB$categoryID'));
+    nameController.text = name;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
   }
 
   String title = 'Level 1';
@@ -67,11 +85,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return ListView.builder(
       itemCount: quizList.length,
       itemBuilder: (context, index) {
-        return Container(
+        Quiz quiz = quizList.elementAt(index);
+        return InkWell(
+          onTap: () {
+            if (Database().loadData('${questionsDB}${quiz.id}') != null) {
+              questionsList =
+                  List.from(Database().loadData('${questionsDB}${quiz.id}'));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => PlayPage(
+                        quiz: quiz,
+                        listQuestions: questionsList,
+                      )));
+            } else {
+              return;
+            }
+          },
           child: Row(
             children: [
               Container(
-                margin: EdgeInsets.all(10),
+                margin: const EdgeInsets.all(10),
                 width: 50,
                 height: 50,
                 decoration: const BoxDecoration(
@@ -96,12 +128,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.download,
-                    color: Colors.grey,
-                  ))
+              Database().loadData('${questionsDB}${quiz.id}') == null
+                  ? IconButton(
+                      onPressed: () async {
+                        await Database().getQuestionsByQuizId(quiz.id);
+                        setState(() {
+                          questionsList =
+                              Database().loadData('${questionsDB}${quiz.id}');
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PlayPage(
+                                    quiz: quiz,
+                                    listQuestions: questionsList,
+                                  )));
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.download,
+                        color: Colors.grey,
+                      ))
+                  : Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                          '${Database().loadData('$scoreDB${quiz.id}')}/${Database().loadData('count${quiz.id}').toString()}'),
+                    )
             ],
           ),
         );
@@ -131,12 +180,84 @@ class _MyHomePageState extends State<MyHomePage> {
                       image: DecorationImage(
                           image: AssetImage('assets/images/icon.png'))),
                 ),
-                title: const Text(
-                  "@name",
-                  style: TextStyle(color: Colors.white),
+                title: Text(
+                  name,
+                  style: const TextStyle(color: Colors.white),
                 ),
                 actions: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+                  IconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (BuildContext context, setS) {
+                                return AlertDialog(
+                                  content: TextFormField(
+                                    controller: nameController,
+                                    maxLength: 20,
+                                    onChanged: (value) {},
+                                    decoration: InputDecoration(
+                                      counterText: null,
+                                      errorText: isEmpty
+                                          ? "name can't be blank"
+                                          : null,
+                                      enabledBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.grey, width: 1)),
+                                      focusedBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.grey, width: 1)),
+                                      errorBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.grey, width: 1)),
+                                      focusedErrorBorder:
+                                          const OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey,
+                                                  width: 1)),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text(
+                                          'Cancel',
+                                          style:
+                                              TextStyle(color: kPrimaryColor),
+                                        )),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setS(
+                                          () {
+                                            nameController.text.isEmpty
+                                                ? isEmpty = true
+                                                : isEmpty = false;
+                                          },
+                                        );
+                                        if (nameController.text.isNotEmpty) {
+                                          setState(() {
+                                            name = nameController.text;
+                                            Database().updateName(name);
+                                          });
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+                                      child: const Text(
+                                        'Ok',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.edit))
                 ],
               ),
               Expanded(
@@ -149,8 +270,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         title = categoryList.elementAt(index).name;
                         categoryID = categoryList.elementAt(index).id;
-                        quizList = List.from(CategoryDatabase()
-                            .loadData('${quizDB}$categoryID'));
+                        quizList = List.from(
+                            Database().loadData('$quizDB$categoryID'));
                       });
                       Navigator.pop(context);
                     },
