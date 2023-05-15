@@ -27,7 +27,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Quiz> quizList = [];
   //
   List<Question> questionsList = [];
-  final myBox = Hive.box('myBox');
   //
   String name = Database().loadData(nameDB);
   //
@@ -35,11 +34,14 @@ class _MyHomePageState extends State<MyHomePage> {
   //
   bool isEmpty = false;
   //
+  List<bool> isLoading = [];
 
   @override
   void initState() {
     quizList = List.from(Database().loadData('$quizDB$categoryID'));
+    isLoading = List.generate(quizList.length, (index) => false);
     nameController.text = name;
+
     super.initState();
   }
 
@@ -86,74 +88,78 @@ class _MyHomePageState extends State<MyHomePage> {
       itemCount: quizList.length,
       itemBuilder: (context, index) {
         Quiz quiz = quizList.elementAt(index);
-        return InkWell(
-          onTap: () {
-            if (Database().loadData('${questionsDB}${quiz.id}') != null) {
-              questionsList =
-                  List.from(Database().loadData('${questionsDB}${quiz.id}'));
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => PlayPage(
-                        quiz: quiz,
-                        listQuestions: questionsList,
-                      )));
-            } else {
-              return;
-            }
-          },
-          child: Row(
-            children: [
-              Container(
-                margin: const EdgeInsets.all(10),
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: kPrimaryColor,
-                ),
-                child: Center(
-                  child: Text(
-                    (index + 1).toString(),
-                    style: const TextStyle(
-                        fontSize: titleFontSize,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
+        return ListTile(
+            onTap: () {
+              if (Database().loadData('$questionsDB${quiz.id}') != null) {
+                questionsList =
+                    List.from(Database().loadData('$questionsDB${quiz.id}'));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => PlayPage(
+                          quiz: quiz,
+                          listQuestions: questionsList,
+                        )));
+              } else {
+                return;
+              }
+            },
+            contentPadding: const EdgeInsets.all(8),
+            leading: Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: kPrimaryColor,
               ),
-              Expanded(
+              child: Center(
                 child: Text(
-                  quizList.elementAt(index).name,
-                  style: const TextStyle(fontSize: bodyFontSize),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  (index + 1).toString(),
+                  style: const TextStyle(
+                      fontSize: titleFontSize,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-              Database().loadData('${questionsDB}${quiz.id}') == null
-                  ? IconButton(
-                      onPressed: () async {
-                        await Database().getQuestionsByQuizId(quiz.id);
-                        setState(() {
-                          questionsList =
-                              Database().loadData('${questionsDB}${quiz.id}');
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => PlayPage(
-                                    quiz: quiz,
-                                    listQuestions: questionsList,
-                                  )));
-                        });
-                      },
-                      icon: const Icon(
-                        Icons.download,
-                        color: Colors.grey,
-                      ))
-                  : Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                          '${Database().loadData('$scoreDB${quiz.id}')}/${Database().loadData('count${quiz.id}').toString()}'),
-                    )
-            ],
-          ),
-        );
+            ),
+            title: Text(
+              quizList.elementAt(index).name,
+              style: const TextStyle(fontSize: bodyFontSize),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Database().loadData('$questionsDB${quiz.id}') == null
+                ? !isLoading[index]
+                    ? IconButton(
+                        onPressed: () async {
+                          setState(() {
+                            isLoading[index] = !isLoading[index];
+                          });
+                          await Database().getQuestionsByQuizId(quiz.id);
+                          setState(() {
+                            questionsList =
+                                Database().loadData('$questionsDB${quiz.id}');
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => PlayPage(
+                                      quiz: quiz,
+                                      listQuestions: questionsList,
+                                    )));
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.download,
+                          color: Colors.grey,
+                        ))
+                    : const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Center(
+                            child: CircularProgressIndicator(
+                          backgroundColor: Colors.grey,
+                        )))
+                : Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                        '${Database().loadData('$scoreDB${quiz.id}')}/${Database().loadData('count${quiz.id}').toString()}'),
+                  ));
       },
     );
   }

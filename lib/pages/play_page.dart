@@ -26,10 +26,21 @@ class PlayPage extends StatefulWidget {
 class _PlayPageState extends State<PlayPage> {
   int i = 0;
   //
+  List<bool> isClick = [];
+  //
+  @override
+  void initState() {
+    super.initState();
+    isClick = List.generate(
+        widget.listQuestions.elementAt(i).answers.length, (index) => false);
+  }
+
+  //
   String buttonText = 'Next';
   @override
   Widget build(BuildContext context) {
     Question question = widget.listQuestions.elementAt(i);
+    // isClick = List.generate(question.answers.length, (i) => false);
     return SafeArea(
       child: Scaffold(
           backgroundColor: kbackgroundColor,
@@ -210,9 +221,14 @@ class _PlayPageState extends State<PlayPage> {
       Answer answer = question.answers.elementAt(index);
       return GestureDetector(
         onTap: () {
-          print(question.id);
+          setState(() {
+            isClick[index] = !isClick[index];
+          });
           Database().updateAnswerByQuestions(question, answer);
-          nextQuestion(context);
+          Future.delayed(const Duration(milliseconds: 500), () {
+            isClick[index] = !isClick[index];
+            nextQuestion(context);
+          });
         },
         child: Center(
           child: Container(
@@ -220,7 +236,8 @@ class _PlayPageState extends State<PlayPage> {
             margin: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 color: Colors.transparent,
-                border: Border.all(color: Colors.grey),
+                border: Border.all(
+                    color: isClick[index] ? kPrimaryColor : Colors.grey),
                 borderRadius: BorderRadius.circular(90)),
             child: Center(
                 child: Text(
