@@ -40,7 +40,6 @@ class _PlayPageState extends State<PlayPage> {
   @override
   Widget build(BuildContext context) {
     Question question = widget.listQuestions.elementAt(i);
-    // isClick = List.generate(question.answers.length, (i) => false);
     return SafeArea(
       child: Scaffold(
           backgroundColor: kbackgroundColor,

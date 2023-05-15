@@ -20,8 +20,12 @@ class _TreePageState extends State<TreePage> {
 
   loadData() async {
     if (myBox.isEmpty) {
-      await Database().createDefaultDB();
-      setState(() {});
+try{
+  await Database().createDefaultDB();
+  setState(() {});
+}catch(e){
+  print(e);
+}
     }
   }
 
@@ -51,7 +55,7 @@ class _TreePageState extends State<TreePage> {
         ),
       );
     } else {
-      return MyHomePage();
+      return const MyHomePage();
     }
   }
 }

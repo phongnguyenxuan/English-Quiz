@@ -20,8 +20,10 @@ class ApiService {
       String time = (now.millisecondsSinceEpoch ~/ 1000).toString();
       String md5String = 'GET$extraURL$clientId$secret$time';
       String checkSum = crypto.md5.convert(utf8.encode(md5String)).toString();
+      print("$checkSum $time $uri");
       var response =
           await http.get(uri, headers: header(clientId, time, checkSum));
+      print(response);
       int status = response.statusCode;
       if (status == 200) {
         String data = response.body;
@@ -30,6 +32,7 @@ class ApiService {
         return null;
       }
     } catch (_) {
+      print(_);
       return null;
     }
   }

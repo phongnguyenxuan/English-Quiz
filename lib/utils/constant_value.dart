@@ -1,7 +1,4 @@
 //
-import 'package:english_quiz/pages/home_page.dart';
-import 'package:flutter/material.dart';
-
 const String categoryDB = 'categoryDB';
 //
 const String quizDB = 'quizDB';

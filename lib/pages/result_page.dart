@@ -9,6 +9,7 @@ import 'package:english_quiz/pages/home_page.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:english_quiz/utils/font.dart';
 
+// ignore: must_be_immutable
 class ResultPage extends StatefulWidget {
   List<Question> listQuestions;
   int quizID;

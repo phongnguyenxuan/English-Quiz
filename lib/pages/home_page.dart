@@ -6,7 +6,6 @@ import 'package:english_quiz/pages/play_page.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:english_quiz/utils/font.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import '../model/quiz.dart';
 import '../utils/constant_value.dart';
 import '../widget/side_item.dart';

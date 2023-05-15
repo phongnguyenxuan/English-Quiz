@@ -2,7 +2,6 @@ import 'package:english_quiz/model/answer.dart';
 import 'package:english_quiz/model/categories.dart';
 import 'package:english_quiz/model/question.dart';
 import 'package:english_quiz/model/quiz.dart';
-import 'package:english_quiz/pages/play_page.dart';
 import 'package:english_quiz/pages/splash.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:flutter/material.dart';

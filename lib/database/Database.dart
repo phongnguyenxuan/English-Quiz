@@ -1,3 +1,4 @@
+// ignore_for_file: file_names
 import 'dart:convert';
 
 import 'package:english_quiz/model/answer.dart';
@@ -15,6 +16,7 @@ class Database {
   Future<void> createDefaultDB() async {
     //get category
     await ApiService().getAPI(baseURL + categoryURL, categoryURL).then((value) {
+      print(value.toString());
       var map = jsonDecode(value.toString());
       List l = map['categories'];
       List<Category> categoryList =
@@ -43,7 +45,6 @@ class Database {
       var map = jsonDecode(value.toString());
       var count = map['count'];
       myBox.put('count$id', count);
-      print(count);
       List l = map['questions'];
       List<Question> questionsList =
           List<Question>.from(l.map((e) => Question.fromMap(e)));
