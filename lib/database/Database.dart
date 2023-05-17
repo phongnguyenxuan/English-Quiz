@@ -16,7 +16,6 @@ class Database {
   Future<void> createDefaultDB() async {
     //get category
     await ApiService().getAPI(baseURL + categoryURL, categoryURL).then((value) {
-      print(value.toString());
       var map = jsonDecode(value.toString());
       List l = map['categories'];
       List<Category> categoryList =

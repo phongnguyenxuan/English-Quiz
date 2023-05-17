@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:english_quiz/database/Database.dart';
 import 'package:english_quiz/model/answer.dart';
 import 'package:english_quiz/model/quiz.dart';
@@ -28,39 +30,38 @@ class _PlayPageState extends State<PlayPage> {
   //
   List<bool> isClick = [];
   //
+  int timePlay = 0;
+  //
+  int left = 0;
+  //
+  int questionsLength = 0;
+  //
+  int right = 0;
+  //
   @override
   void initState() {
     super.initState();
+    //
+    questionsLength = widget.listQuestions.length;
+    right = questionsLength ~/ 2;
+    //
     isClick = List.generate(
         widget.listQuestions.elementAt(i).answers.length, (index) => false);
+    Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        timePlay = timer.tick;
+      },
+    );
   }
 
-  //
-  String buttonText = 'Next';
   @override
   Widget build(BuildContext context) {
     Question question = widget.listQuestions.elementAt(i);
     return SafeArea(
       child: Scaffold(
           backgroundColor: kbackgroundColor,
-          appBar: AppBar(
-            centerTitle: true,
-            title: Text(widget.quiz.name,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: titleFontSize)),
-            bottom: PreferredSize(
-                preferredSize: const Size(0, 50),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "${i + 1}/${widget.listQuestions.length}",
-                    style: const TextStyle(
-                        fontSize: bodyFontSize, color: Colors.white),
-                  ),
-                )),
-          ),
+          appBar: header(),
           body: Column(
             children: [
               //questions
@@ -80,6 +81,68 @@ class _PlayPageState extends State<PlayPage> {
     );
   }
 
+  AppBar header() {
+    return AppBar(
+      centerTitle: true,
+      title: Text(widget.quiz.name,
+          style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: titleFontSize)),
+      bottom: PreferredSize(
+          preferredSize: const Size(0, 50),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: List.generate(left > 6 ? 6 : left, (index) {
+                      return Container(
+                        height: 3,
+                        width: 15,
+                        margin: const EdgeInsets.all(5),
+                        color: kLevelColor,
+                      );
+                    }),
+                  ),
+                ),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: const BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
+                  child: Center(
+                      child: Text(
+                    "${i + 1}",
+                    style: const TextStyle(color: kPrimaryColor),
+                  )),
+                ),
+                Expanded(
+                  child: Row(
+                    children: List.generate(
+                        i + 1 < questionsLength ~/ 2
+                            ? 6
+                            : questionsLength - left - 1 > 6
+                                ? 6
+                                : questionsLength - left - 1, (index) {
+                      return Container(
+                        height: 3,
+                        width: 15,
+                        margin: const EdgeInsets.all(5),
+                        color: kLevelColor,
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+
   Row footer(BuildContext context, Question question) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -88,9 +151,17 @@ class _PlayPageState extends State<PlayPage> {
           onTap: i == 0
               ? null
               : () {
-                  setState(() {
-                    i -= 1;
-                  });
+                  if (i < questionsLength) {
+                    setState(() {
+                      i -= 1;
+                    });
+                    if (left < questionsLength) {
+                      left--;
+                      if (i <= questionsLength ~/ 2) {
+                        right++;
+                      }
+                    }
+                  }
                 },
           child: Container(
             width: 150,
@@ -162,7 +233,8 @@ class _PlayPageState extends State<PlayPage> {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ResultPage(
                                 listQuestions: widget.listQuestions,
-                                quizID: widget.quiz.id,
+                                quiz: widget.quiz,
+                                timePlay: timePlay,
                               )));
                     },
                     child: Container(
@@ -183,7 +255,9 @@ class _PlayPageState extends State<PlayPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
                     child: Container(
                       // width: 150,
                       height: 60,
@@ -208,9 +282,18 @@ class _PlayPageState extends State<PlayPage> {
         },
       );
     } else {
-      setState(() {
-        i += 1;
-      });
+      if (i <= questionsLength) {
+        // print(left.length);
+        setState(() {
+          i += 1;
+        });
+        if (left < questionsLength) {
+          left++;
+          if (i >= questionsLength - left) {
+            right--;
+          }
+        }
+      }
     }
   }
 
