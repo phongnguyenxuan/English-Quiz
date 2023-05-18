@@ -30,6 +30,8 @@ class _PlayPageState extends State<PlayPage> {
   //
   List<bool> isClick = [];
   //
+  List<bool> isChoice = [];
+  //
   int timePlay = 0;
   //
   int left = 0;
@@ -38,15 +40,19 @@ class _PlayPageState extends State<PlayPage> {
   //
   int right = 0;
   //
+  late Question question;
+  //
   @override
   void initState() {
     super.initState();
     //
     questionsLength = widget.listQuestions.length;
-    right = questionsLength ~/ 2;
     //
-    isClick = List.generate(
-        widget.listQuestions.elementAt(i).answers.length, (index) => false);
+    right = questionsLength;
+    //
+    isClick = List.generate(10, (index) => false);
+    //
+    isChoice = List.generate(questionsLength, (index) => false);
     Timer.periodic(
       const Duration(seconds: 1),
       (Timer timer) {
@@ -56,8 +62,16 @@ class _PlayPageState extends State<PlayPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    for (int i = 0; i < widget.listQuestions.length; i++) {
+      Database().deleteAnswerByQuestions(widget.listQuestions.elementAt(i));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Question question = widget.listQuestions.elementAt(i);
+    question = widget.listQuestions.elementAt(i);
     return SafeArea(
       child: Scaffold(
           backgroundColor: kbackgroundColor,
@@ -73,8 +87,8 @@ class _PlayPageState extends State<PlayPage> {
                       fontSize: titleFontSize, fontWeight: FontWeight.w500),
                 ),
               ),
-              answer(question),
-              const Spacer(),
+              Expanded(
+                  child: FittedBox(fit: BoxFit.scaleDown, child: answer())),
               footer(context, question)
             ],
           )),
@@ -83,6 +97,11 @@ class _PlayPageState extends State<PlayPage> {
 
   AppBar header() {
     return AppBar(
+      leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          }),
       centerTitle: true,
       title: Text(widget.quiz.name,
           style: const TextStyle(
@@ -92,48 +111,51 @@ class _PlayPageState extends State<PlayPage> {
       bottom: PreferredSize(
           preferredSize: const Size(0, 50),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(10.0),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.max,
               children: [
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: List.generate(left > 6 ? 6 : left, (index) {
+                    children: List.generate(i, (index) {
+                      if (index > 5) {
+                        return Container();
+                      }
                       return Container(
-                        height: 3,
-                        width: 15,
-                        margin: const EdgeInsets.all(5),
-                        color: kLevelColor,
-                      );
+                          height: 3,
+                          width: 15,
+                          margin: const EdgeInsets.all(5),
+                          color: kLevelColor);
                     }),
                   ),
                 ),
                 Container(
                   width: 30,
                   height: 30,
-                  decoration: const BoxDecoration(
-                      color: Colors.white, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                      color: isChoice[i] ? Colors.orange : Colors.white,
+                      shape: BoxShape.circle),
                   child: Center(
                       child: Text(
                     "${i + 1}",
-                    style: const TextStyle(color: kPrimaryColor),
+                    style: TextStyle(
+                      color: isChoice[i] ? Colors.white : kPrimaryColor,
+                    ),
                   )),
                 ),
                 Expanded(
                   child: Row(
-                    children: List.generate(
-                        i + 1 < questionsLength ~/ 2
-                            ? 6
-                            : questionsLength - left - 1 > 6
-                                ? 6
-                                : questionsLength - left - 1, (index) {
+                    children:
+                        List.generate(questionsLength - left - 1, (index) {
+                      if (index > 5) {
+                        return Container();
+                      }
                       return Container(
-                        height: 3,
-                        width: 15,
-                        margin: const EdgeInsets.all(5),
-                        color: kLevelColor,
-                      );
+                          height: 3,
+                          width: 15,
+                          margin: const EdgeInsets.all(5),
+                          color: kLevelColor);
                     }),
                   ),
                 ),
@@ -183,7 +205,7 @@ class _PlayPageState extends State<PlayPage> {
         ),
         GestureDetector(
           onTap: () {
-            Database().updateAnswerByQuestions(question, null);
+            // Database().updateAnswerByQuestions(question, null);
             nextQuestion(context);
           },
           child: Container(
@@ -209,7 +231,8 @@ class _PlayPageState extends State<PlayPage> {
 
   //nextQuestions
   void nextQuestion(BuildContext context) {
-    if (i >= widget.listQuestions.length - 1) {
+    //  print("index:$i / left: $left / right: $right");
+    if (i >= questionsLength - 1) {
       showDialog(
         context: context,
         builder: (context) {
@@ -230,12 +253,14 @@ class _PlayPageState extends State<PlayPage> {
                   Image.asset('assets/images/result-icon.png'),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ResultPage(
-                                listQuestions: widget.listQuestions,
-                                quiz: widget.quiz,
-                                timePlay: timePlay,
-                              )));
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => ResultPage(
+                                    listQuestions: widget.listQuestions,
+                                    quiz: widget.quiz,
+                                    timePlay: timePlay,
+                                  )),
+                          (route) => false);
                     },
                     child: Container(
                       // width: 150,
@@ -288,38 +313,40 @@ class _PlayPageState extends State<PlayPage> {
           i += 1;
         });
         if (left < questionsLength) {
-          left++;
-          if (i >= questionsLength - left) {
-            right--;
-          }
+          ++left;
+          right--;
         }
       }
     }
   }
 
-  Column answer(Question question) {
+  Widget answer() {
     return Column(
-        children: List<Widget>.generate(question.answers.length, (index) {
-      Answer answer = question.answers.elementAt(index);
+        children: List<Widget>.generate(question.answers.length, (j) {
+      Answer answer = question.answers.elementAt(j);
       return GestureDetector(
         onTap: () {
+          // isChoice[i] = true;
           setState(() {
-            isClick[index] = !isClick[index];
+            isChoice[i] = true;
+            isClick[j] = !isClick[j];
           });
           Database().updateAnswerByQuestions(question, answer);
           Future.delayed(const Duration(milliseconds: 500), () {
-            isClick[index] = !isClick[index];
+            isClick[j] = !isClick[j];
             nextQuestion(context);
           });
         },
         child: Center(
           child: Container(
+            constraints:
+                BoxConstraints(minWidth: MediaQuery.of(context).size.width),
             height: 50,
             margin: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 color: Colors.transparent,
-                border: Border.all(
-                    color: isClick[index] ? kPrimaryColor : Colors.grey),
+                border:
+                    Border.all(color: isClick[j] ? kPrimaryColor : Colors.grey),
                 borderRadius: BorderRadius.circular(90)),
             child: Center(
                 child: Text(

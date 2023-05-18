@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:english_quiz/database/Database.dart';
 import 'package:english_quiz/model/categories.dart' as category;
 import 'package:english_quiz/model/question.dart';
@@ -9,6 +11,7 @@ import 'package:english_quiz/services/api_services.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:english_quiz/utils/font.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../model/quiz.dart';
 import '../utils/constant_value.dart';
 import '../widget/side_item.dart';
@@ -37,9 +40,15 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isEmpty = false;
   //
   List<bool> isLoading = [];
-
+  //check internet
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
   @override
   void initState() {
+    initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
     quizList = List.from(Database().loadData('$quizDB$categoryID'));
     isLoading = List.generate(quizList.length, (index) => false);
     nameController.text = name;
@@ -49,8 +58,52 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
+    _connectivitySubscription.cancel();
     nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (_) {
+      return;
+    }
+
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  Future<dynamic> errorDialog(BuildContext context, Quiz quiz) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: const Text("No connection"),
+            actions: [
+              ElevatedButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    if (_connectionStatus.name == "none") {
+                      errorDialog(context, quiz);
+                    } else {
+                      return;
+                    }
+                  },
+                  child: const Text("Retry"))
+            ],
+          );
+        });
   }
 
   String title = 'Level 1';
@@ -132,19 +185,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? !isLoading[index]
                     ? IconButton(
                         onPressed: () async {
-                          setState(() {
-                            isLoading[index] = !isLoading[index];
-                          });
-                          await Database().getQuestionsByQuizId(quiz.id);
-                          setState(() {
-                            questionsList =
-                                Database().loadData('$questionsDB${quiz.id}');
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => PlayPage(
-                                      quiz: quiz,
-                                      listQuestions: questionsList,
-                                    )));
-                          });
+                          if (_connectionStatus.name == "none") {
+                            errorDialog(context, quiz);
+                          } else {
+                            setState(() {
+                              isLoading[index] = !isLoading[index];
+                            });
+                            await Database().getQuestionsByQuizId(quiz.id);
+                            setState(() {
+                              questionsList =
+                                  Database().loadData('$questionsDB${quiz.id}');
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => PlayPage(
+                                        quiz: quiz,
+                                        listQuestions: questionsList,
+                                      )));
+                            });
+                          }
+                          // await Database().getQuestionsByQuizId(quiz.id);
+                          // setState(() {
+                          //   questionsList =
+                          //       Database().loadData('$questionsDB${quiz.id}');
+                          //   Navigator.of(context).push(MaterialPageRoute(
+                          //       builder: (context) => PlayPage(
+                          //             quiz: quiz,
+                          //             listQuestions: questionsList,
+                          //           )));
+                          // });
                         },
                         icon: const Icon(
                           Icons.download,

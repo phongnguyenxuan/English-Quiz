@@ -61,6 +61,10 @@ class Database {
     myBox.put('${question.id}', answer);
   }
 
+  deleteAnswerByQuestions(Question question) {
+    myBox.delete('${question.id}');
+  }
+
   updateName(String name) {
     myBox.put(nameDB, name);
   }

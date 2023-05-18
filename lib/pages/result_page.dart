@@ -91,9 +91,10 @@ class _ResultPageState extends State<ResultPage> {
     return WillPopScope(
       onWillPop: () async {
         if (Navigator.canPop(context)) {
-          Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MyHomePage()),
-              (route) => false);
+          Navigator.of(context).pop();
+          // Navigator.of(context).pushAndRemoveUntil(
+          //     MaterialPageRoute(builder: (context) => const MyHomePage()),
+          //     (route) => false);
         }
         return true;
       },
