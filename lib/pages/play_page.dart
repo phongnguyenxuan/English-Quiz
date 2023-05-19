@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:english_quiz/database/Database.dart';
 import 'package:english_quiz/model/answer.dart';
 import 'package:english_quiz/model/quiz.dart';
+import 'package:english_quiz/pages/home_page.dart';
 import 'package:english_quiz/pages/result_page.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:flutter/material.dart';
@@ -79,18 +80,22 @@ class _PlayPageState extends State<PlayPage> {
           backgroundColor: kbackgroundColor,
           appBar: header(),
           body: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               //questions
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(
+                    top: 20, bottom: 10, right: 20, left: 20),
                 child: Text(
                   question.content,
                   style: const TextStyle(
                       fontSize: titleFontSize, fontWeight: FontWeight.w500),
                 ),
               ),
-              Expanded(
-                  child: FittedBox(fit: BoxFit.scaleDown, child: answer())),
+              answer(),
+              const Spacer(),
               footer(context, question)
             ],
           )),
@@ -102,7 +107,9 @@ class _PlayPageState extends State<PlayPage> {
       leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => const MyHomePage(),
+            ));
           }),
       centerTitle: true,
       title: Text(widget.quiz.name,
@@ -341,29 +348,26 @@ class _PlayPageState extends State<PlayPage> {
                 });
               }
             : null,
-        child: Center(
-          child: Container(
-            constraints:
-                BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-            height: 50,
-            margin: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border.all(
-                    color: answerChoice == null
-                        ? isClick[j]
-                            ? kPrimaryColor
-                            : Colors.grey
-                        : answerChoice.id == answer.id
-                            ? kPrimaryColor
-                            : Colors.grey),
-                borderRadius: BorderRadius.circular(90)),
-            child: Center(
-                child: Text(
-              answer.content,
-              style: const TextStyle(fontSize: bodyFontSize),
-            )),
-          ),
+        child: Container(
+          constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width, maxHeight: 40),
+          margin: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+              color: Colors.transparent,
+              border: Border.all(
+                  color: answerChoice == null
+                      ? isClick[j]
+                          ? kPrimaryColor
+                          : Colors.grey
+                      : answerChoice.id == answer.id
+                          ? kPrimaryColor
+                          : Colors.grey),
+              borderRadius: BorderRadius.circular(90)),
+          child: Center(
+              child: Text(
+            answer.content,
+            style: const TextStyle(fontSize: bodyFontSize),
+          )),
         ),
       );
     }));

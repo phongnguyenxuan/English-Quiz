@@ -185,33 +185,30 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? !isLoading[index]
                     ? IconButton(
                         onPressed: () async {
-                          if (_connectionStatus.name == "none") {
-                            errorDialog(context, quiz);
-                          } else {
-                            setState(() {
-                              isLoading[index] = !isLoading[index];
-                            });
-                            await Database().getQuestionsByQuizId(quiz.id);
-                            setState(() {
-                              questionsList =
-                                  Database().loadData('$questionsDB${quiz.id}');
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => PlayPage(
-                                        quiz: quiz,
-                                        listQuestions: questionsList,
-                                      )));
-                            });
+                          try {
+                            if (_connectionStatus.name == "none") {
+                              errorDialog(context, quiz);
+                            } else {
+                              setState(() {
+                                isLoading[index] = !isLoading[index];
+                              });
+
+                              await Database().getQuestionsByQuizId(quiz.id);
+                              questionsList = await Database()
+                                  .loadData('$questionsDB${quiz.id}');
+                              setState(() {});
+                              // ignore: use_build_context_synchronously
+                              Navigator.of(context)
+                                  .pushReplacement(MaterialPageRoute(
+                                      builder: (context) => PlayPage(
+                                            quiz: quiz,
+                                            listQuestions: questionsList,
+                                          )));
+                              print(questionsList.toString());
+                            }
+                          } catch (e) {
+                            print("error: $e");
                           }
-                          // await Database().getQuestionsByQuizId(quiz.id);
-                          // setState(() {
-                          //   questionsList =
-                          //       Database().loadData('$questionsDB${quiz.id}');
-                          //   Navigator.of(context).push(MaterialPageRoute(
-                          //       builder: (context) => PlayPage(
-                          //             quiz: quiz,
-                          //             listQuestions: questionsList,
-                          //           )));
-                          // });
                         },
                         icon: const Icon(
                           Icons.download,
