@@ -32,6 +32,8 @@ class _PlayPageState extends State<PlayPage> {
   //
   List<bool> isChoice = [];
   //
+  bool onTap = false;
+  //
   int timePlay = 0;
   //
   int left = 0;
@@ -206,7 +208,7 @@ class _PlayPageState extends State<PlayPage> {
         GestureDetector(
           onTap: () {
             // Database().updateAnswerByQuestions(question, null);
-            nextQuestion(context);
+            nextQuestion(context, null);
           },
           child: Container(
             width: 150,
@@ -230,8 +232,7 @@ class _PlayPageState extends State<PlayPage> {
   }
 
   //nextQuestions
-  void nextQuestion(BuildContext context) {
-    //  print("index:$i / left: $left / right: $right");
+  void nextQuestion(BuildContext context, Answer? answer) async {
     if (i >= questionsLength - 1) {
       showDialog(
         context: context,
@@ -308,7 +309,6 @@ class _PlayPageState extends State<PlayPage> {
       );
     } else {
       if (i <= questionsLength) {
-        // print(left.length);
         setState(() {
           i += 1;
         });
@@ -324,19 +324,23 @@ class _PlayPageState extends State<PlayPage> {
     return Column(
         children: List<Widget>.generate(question.answers.length, (j) {
       Answer answer = question.answers.elementAt(j);
+      Answer? answerChoice = Database().loadData(question.id.toString());
       return GestureDetector(
-        onTap: () {
-          // isChoice[i] = true;
-          setState(() {
-            isChoice[i] = true;
-            isClick[j] = !isClick[j];
-          });
-          Database().updateAnswerByQuestions(question, answer);
-          Future.delayed(const Duration(milliseconds: 500), () {
-            isClick[j] = !isClick[j];
-            nextQuestion(context);
-          });
-        },
+        onTap: !onTap
+            ? () {
+                setState(() {
+                  onTap = !onTap;
+                  isChoice[i] = true;
+                  isClick[j] = !isClick[j];
+                });
+                Future.delayed(const Duration(milliseconds: 500), () async {
+                  isClick[j] = !isClick[j];
+                  Database().updateAnswerByQuestions(question, answer);
+                  nextQuestion(context, answer);
+                  onTap = !onTap;
+                });
+              }
+            : null,
         child: Center(
           child: Container(
             constraints:
@@ -345,8 +349,14 @@ class _PlayPageState extends State<PlayPage> {
             margin: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 color: Colors.transparent,
-                border:
-                    Border.all(color: isClick[j] ? kPrimaryColor : Colors.grey),
+                border: Border.all(
+                    color: answerChoice == null
+                        ? isClick[j]
+                            ? kPrimaryColor
+                            : Colors.grey
+                        : answerChoice.id == answer.id
+                            ? kPrimaryColor
+                            : Colors.grey),
                 borderRadius: BorderRadius.circular(90)),
             child: Center(
                 child: Text(
