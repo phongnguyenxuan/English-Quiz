@@ -161,6 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Column(
           children: [
             AppBar(
+              backgroundColor: kDarkBlue,
               leadingWidth: 50,
               //avatar
               leading: Container(
@@ -281,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Quiz quiz = quizList.elementAt(index);
           return ListTile(
               onTap: () {
+                _sliderDrawerKey.currentState!.closeSlider();
                 if (Database().loadData('$questionsDB${quiz.id}') != null) {
                   questionsList =
                       List.from(Database().loadData('$questionsDB${quiz.id}'));
@@ -341,9 +343,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               listQuestions: questionsList,
                                             )));
                               }
-                            } catch (e) {
-                              print("error: $e");
-                            }
+                            } catch (_) {}
                           },
                           icon: const Icon(
                             Icons.download,
