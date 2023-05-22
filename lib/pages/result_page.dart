@@ -5,7 +5,6 @@ import 'package:english_quiz/database/Database.dart';
 import 'package:english_quiz/model/answer.dart';
 import 'package:english_quiz/model/question.dart';
 import 'package:english_quiz/model/quiz.dart';
-import 'package:english_quiz/pages/home_page.dart';
 import 'package:english_quiz/services/api_services.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:english_quiz/utils/constant_value.dart';
@@ -13,14 +12,14 @@ import 'package:english_quiz/utils/font.dart';
 
 // ignore: must_be_immutable
 class ResultPage extends StatefulWidget {
-  List<Question> listQuestions;
-  Quiz quiz;
-  int timePlay;
+  List<Question>? listQuestions;
+  Quiz? quiz;
+  int? timePlay;
   ResultPage({
     Key? key,
-    required this.listQuestions,
-    required this.quiz,
-    required this.timePlay,
+    this.listQuestions,
+    this.quiz,
+    this.timePlay,
   }) : super(key: key);
 
   @override
@@ -64,10 +63,10 @@ class _ResultPageState extends State<ResultPage> {
   void initState() {
     super.initState();
     content =
-        "$name finished the test with $score/${widget.listQuestions.length} scores in ${intToTime(widget.timePlay)}";
-    for (int i = 0; i < widget.listQuestions.length; i++) {
+        "$name finished the test with $score/${widget.listQuestions!.length} scores in ${intToTime(widget.timePlay!)}";
+    for (int i = 0; i < widget.listQuestions!.length; i++) {
       Answer? answerChoice =
-          Database().loadData(widget.listQuestions.elementAt(i).id.toString());
+          Database().loadData(widget.listQuestions!.elementAt(i).id.toString());
       if (answerChoice != null) {
         if (answerChoice.correct == 1) {
           correctAnswer.add(answerChoice.id);
@@ -80,210 +79,199 @@ class _ResultPageState extends State<ResultPage> {
     }
     //update high score
     score = correctAnswer.length;
-    int highScore = Database().loadData('$scoreDB${widget.quiz.id}');
+    int highScore = Database().loadData('$scoreDB${widget.quiz!.id}');
     if (score > highScore) {
-      Database().updateHighScore(widget.quiz.id, score);
+      Database().updateHighScore(widget.quiz!.id, score);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (Navigator.canPop(context)) {
-          Navigator.of(context).pop();
-          // Navigator.of(context).pushAndRemoveUntil(
-          //     MaterialPageRoute(builder: (context) => const MyHomePage()),
-          //     (route) => false);
-        }
-        return true;
-      },
-      child: SafeArea(
-        child: Scaffold(
-            backgroundColor: kbackgroundColor,
-            appBar: AppBar(
-              centerTitle: true,
-              leading: IconButton(
+    return SafeArea(
+      child: Scaffold(
+          backgroundColor: kbackgroundColor,
+          appBar: AppBar(
+            centerTitle: true,
+            leading: IconButton(
+                onPressed: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.of(context).pop();
+                  }
+                },
+                icon: const Icon(Icons.home)),
+            title: const Text(
+              'RESULT TEST',
+              style: TextStyle(color: Colors.white, fontSize: titleFontSize),
+            ),
+            actions: [
+              //share
+              IconButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const MyHomePage()));
-                  },
-                  icon: const Icon(Icons.home)),
-              title: const Text(
-                'RESULT TEST',
-                style: TextStyle(color: Colors.white, fontSize: titleFontSize),
-              ),
-              actions: [
-                //share
-                IconButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) {
-                          int statusCode = 0;
-                          String errorText = "";
-                          return StatefulBuilder(
-                            builder: (context, setS) {
-                              switch (statusCode) {
-                                case 200:
-                                  return successForm();
-                              }
-                              return AlertDialog(
-                                title: Container(
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                          bottom: BorderSide(
-                                              color: Colors.grey.shade300))),
-                                  child: Row(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 20),
-                                        child: Text(
-                                          'To:',
-                                          style:
-                                              TextStyle(fontSize: bodyFontSize),
-                                        ),
-                                      ),
-                                      Flexible(
-                                          child: TextField(
-                                        controller: emailController,
-                                        maxLines: 2,
-                                        minLines: 1,
-                                        keyboardType:
-                                            TextInputType.emailAddress,
-                                        decoration: const InputDecoration(
-                                          border: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent,
-                                                width: 1.0),
-                                          ),
-                                          enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent,
-                                                width: 1.0),
-                                          ),
-                                          errorBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent,
-                                                width: 1.0),
-                                          ),
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent,
-                                                width: 1.0),
-                                          ),
-                                          hintText: "email",
-                                          // errorText: error,
-                                        ),
-                                      ))
-                                    ],
-                                  ),
-                                ),
-                                content: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) {
+                        int statusCode = 0;
+                        String errorText = "";
+                        return StatefulBuilder(
+                          builder: (context, setS) {
+                            switch (statusCode) {
+                              case 200:
+                                return successForm();
+                            }
+                            return AlertDialog(
+                              title: Container(
+                                height: 60,
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: Colors.grey.shade300))),
+                                child: Row(
                                   children: [
-                                    const Text(
-                                      'Subject:',
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    Text(
-                                      widget.quiz.name,
-                                      style: const TextStyle(
-                                          color: Colors.black54),
-                                    ),
                                     const Padding(
-                                      padding: EdgeInsets.only(top: 15),
+                                      padding: EdgeInsets.only(right: 20),
                                       child: Text(
-                                        'Content:',
-                                        style: TextStyle(color: Colors.black),
+                                        'To:',
+                                        style:
+                                            TextStyle(fontSize: bodyFontSize),
                                       ),
                                     ),
-                                    Text(content,
-                                        style: const TextStyle(
-                                            color: Colors.black54)),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 20),
-                                      child: Text(
-                                        errorText,
-                                        style: const TextStyle(
-                                            color: Colors.redAccent),
+                                    Flexible(
+                                        child: TextField(
+                                      controller: emailController,
+                                      maxLines: 2,
+                                      minLines: 1,
+                                      keyboardType: TextInputType.emailAddress,
+                                      decoration: const InputDecoration(
+                                        border: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.transparent,
+                                              width: 1.0),
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.transparent,
+                                              width: 1.0),
+                                        ),
+                                        errorBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.transparent,
+                                              width: 1.0),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.transparent,
+                                              width: 1.0),
+                                        ),
+                                        hintText: "email",
+                                        // errorText: error,
                                       ),
-                                    ),
+                                    ))
                                   ],
                                 ),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        emailController.clear();
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text(
-                                        'Cancel',
-                                        style: TextStyle(color: kPrimaryColor),
-                                      )),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      // //
-                                      bool emailValid = RegExp(
-                                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                                          .hasMatch(emailController.text);
-                                      if (emailValid) {
-                                        String email = emailController.text
-                                            .split("")
-                                            .join(",");
-                                        Map<String, dynamic> data = {
-                                          "subject": widget.quiz.name,
-                                          "content": content,
-                                          "receivers": email
-                                        };
-                                        showDialog(
-                                            barrierDismissible: false,
-                                            context: context,
-                                            builder: (context) {
-                                              return const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              );
-                                            });
-                                        int a = await ApiService().postAPI(
-                                            baseURL + sendMailURL,
-                                            sendMailURL,
-                                            data);
-                                        // ignore: use_build_context_synchronously
-                                        Navigator.of(context).pop();
-                                        setS(
-                                          () {
-                                            statusCode = a;
-                                          },
-                                        );
-                                      } else {
-                                        setS(
-                                          () {
-                                            errorText = "invalid email";
-                                          },
-                                        );
-                                      }
-                                    },
-                                    child: const Text(
-                                      'Send',
-                                      style: TextStyle(color: Colors.white),
+                              ),
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'Subject:',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  Text(
+                                    widget.quiz!.name,
+                                    style:
+                                        const TextStyle(color: Colors.black54),
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 15),
+                                    child: Text(
+                                      'Content:',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                  Text(content,
+                                      style: const TextStyle(
+                                          color: Colors.black54)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 20),
+                                    child: Text(
+                                      errorText,
+                                      style: const TextStyle(
+                                          color: Colors.redAccent),
                                     ),
                                   ),
                                 ],
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.share))
-              ],
-            ),
-            body: body()),
-      ),
+                              ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      emailController.clear();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text(
+                                      'Cancel',
+                                      style: TextStyle(color: kPrimaryColor),
+                                    )),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    // //
+                                    bool emailValid = RegExp(
+                                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                        .hasMatch(emailController.text);
+                                    if (emailValid) {
+                                      String email = emailController.text
+                                          .split("")
+                                          .join(",");
+                                      Map<String, dynamic> data = {
+                                        "subject": widget.quiz!.name,
+                                        "content": content,
+                                        "receivers": email
+                                      };
+                                      showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (context) {
+                                            return const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          });
+                                      int a = await ApiService().postAPI(
+                                          baseURL + sendMailURL,
+                                          sendMailURL,
+                                          data);
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.of(context).pop();
+                                      setS(
+                                        () {
+                                          statusCode = a;
+                                        },
+                                      );
+                                    } else {
+                                      setS(
+                                        () {
+                                          errorText = "invalid email";
+                                        },
+                                      );
+                                    }
+                                  },
+                                  child: const Text(
+                                    'Send',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.share))
+            ],
+          ),
+          body: body()),
     );
   }
 
@@ -338,10 +326,10 @@ class _ResultPageState extends State<ResultPage> {
           ),
           Column(
             children:
-                List<Widget>.generate(widget.listQuestions.length, (index) {
-              Question question = widget.listQuestions.elementAt(index);
+                List<Widget>.generate(widget.listQuestions!.length, (index) {
+              Question question = widget.listQuestions!.elementAt(index);
               Answer? answerChoice = Database().loadData(
-                  widget.listQuestions.elementAt(index).id.toString());
+                  widget.listQuestions!.elementAt(index).id.toString());
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

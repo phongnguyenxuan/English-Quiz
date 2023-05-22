@@ -9,7 +9,6 @@ import 'package:english_quiz/utils/color.dart';
 import 'package:english_quiz/utils/font.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import '../model/quiz.dart';
 import '../utils/constant_value.dart';
 import '../widget/side_item.dart';
@@ -23,9 +22,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   //
-  //
-  final GlobalKey<SliderDrawerState> _sliderDrawerKey =
-      GlobalKey<SliderDrawerState>();
   //
   int categoryID = 3;
   List<category.Category> categoryList =
@@ -42,6 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isEmpty = false;
   //
   List<bool> isLoading = [];
+  //
+  bool canTap=true;
   //check internet
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -112,17 +110,19 @@ class _MyHomePageState extends State<MyHomePage> {
   double value = 0;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width - 80,
-            child: _sidebar(),
-          ),
-          _body(),
-        ],
+    return SafeArea(
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width - 80,
+              child: _sidebar(),
+            ),
+            _body(),
+          ],
+        ),
       ),
     );
   }
@@ -251,6 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _body() {
+    var route = ModalRoute.of(context);
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 200),
       width: MediaQuery.of(context).size.width,
@@ -280,9 +281,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               actions: [
-                IconButton(onPressed: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder:(context) => const InfoPage(),));
-                }, icon: const Icon(Icons.info))
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const InfoPage(),
+                      ));
+                    },
+                    icon: const Icon(Icons.info))
               ],
             ),
             body: ListView.builder(
@@ -290,21 +295,23 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (context, index) {
                 Quiz quiz = quizList.elementAt(index);
                 return ListTile(
-                    onTap: () {
-                      _sliderDrawerKey.currentState!.closeSlider();
-                      if (Database().loadData('$questionsDB${quiz.id}') !=
-                          null) {
-                        questionsList = List.from(
-                            Database().loadData('$questionsDB${quiz.id}'));
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => PlayPage(
-                                  quiz: quiz,
-                                  listQuestions: questionsList,
-                                )));
-                      } else {
-                        return;
-                      }
-                    },
+                    onTap: (Database().loadData('$questionsDB${quiz.id}') !=
+                            null)
+                        ? () {
+                            questionsList = List.from(
+                                Database().loadData('$questionsDB${quiz.id}'));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  settings: const RouteSettings(
+                                    name: "playpage",
+                                  ),
+                                  builder: (context) => PlayPage(
+                                        quiz: quiz,
+                                        listQuestions: questionsList,
+                                      )),
+                            );
+                          }
+                        : null,
                     contentPadding: const EdgeInsets.all(8),
                     leading: Container(
                       width: 60,
@@ -333,31 +340,43 @@ class _MyHomePageState extends State<MyHomePage> {
                             null
                         ? !isLoading[index]
                             ? IconButton(
-                                onPressed: () async {
+                                onPressed: canTap?() async {
                                   try {
                                     if (_connectionStatus.name == "none") {
                                       errorDialog(context, quiz);
                                     } else {
                                       setState(() {
+                                        canTap=!canTap;
                                         isLoading[index] = !isLoading[index];
                                       });
 
                                       await Database()
                                           .getQuestionsByQuizId(quiz.id);
-                                      questionsList = await Database()
-                                          .loadData('$questionsDB${quiz.id}');
-                                      setState(() {});
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.of(context)
-                                          .pushReplacement(MaterialPageRoute(
-                                              builder: (context) => PlayPage(
+
+                                      setState(() {
+                                        questionsList = Database()
+                                            .loadData('$questionsDB${quiz.id}');
+                                      });
+                                      if (route!.settings.name == "/homepage" &&
+                                          context.mounted) {
+                                        Navigator.of(context)
+                                            .pushAndRemoveUntil(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PlayPage(
                                                     quiz: quiz,
                                                     listQuestions:
                                                         questionsList,
-                                                  )));
+                                                  ),
+                                                ),
+                                                ModalRoute.withName(
+                                                    "/homepage"));
+                                      } else {
+                                        return;
+                                      }
                                     }
                                   } catch (_) {}
-                                },
+                                }:null,
                                 icon: const Icon(
                                   Icons.download,
                                   color: Colors.grey,

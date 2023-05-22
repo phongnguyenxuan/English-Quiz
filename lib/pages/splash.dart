@@ -1,4 +1,3 @@
-import 'package:english_quiz/pages/tree_page.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -14,8 +13,9 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     Future.delayed(const Duration(milliseconds: 1500), () {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const TreePage()));
+      Navigator.of(context).pushNamedAndRemoveUntil(
+         '/homepage',
+          ((route) => false));
     });
     super.initState();
   }

@@ -2,7 +2,10 @@ import 'package:english_quiz/model/answer.dart';
 import 'package:english_quiz/model/categories.dart';
 import 'package:english_quiz/model/question.dart';
 import 'package:english_quiz/model/quiz.dart';
+import 'package:english_quiz/pages/play_page.dart';
+import 'package:english_quiz/pages/result_page.dart';
 import 'package:english_quiz/pages/splash.dart';
+import 'package:english_quiz/pages/tree_page.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -26,11 +29,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: Theme.of(context).copyWith(
-          colorScheme:
-              Theme.of(context).colorScheme.copyWith(primary: kPrimaryColor)),
-      home: const Splash(),
-    );
+        debugShowCheckedModeBanner: false,
+        theme: Theme.of(context).copyWith(
+            colorScheme:
+                Theme.of(context).colorScheme.copyWith(primary: kPrimaryColor)),
+       // home: const Splash(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const Splash(),
+          '/homepage':(context) => const TreePage(),
+          '/playpage': (context) => PlayPage(),
+          '/resultpage':(context)=>ResultPage(),
+        });
   }
 }

@@ -1,6 +1,4 @@
 //
-import 'dart:io';
-
 const String categoryDB = 'categoryDB';
 //
 const String quizDB = 'quizDB';
@@ -25,13 +23,9 @@ const String clientId = '2069';
 //
 const String secret = 'eImPg8zkepjOr9KmlmLhfKKCdLIK7lOR';
 //
-isConnectedInternet() async {
-  try {
-    final result = await InternetAddress.lookup('google.com');
-    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-      return true;
-    }
-  } on SocketException catch (_) {
-    return false;
-  }
+class Routes{
+  static const String splash= "/splash";
+  static const String treepage= "/treepage";
+  static const String playpage="/playpage";
+  static const String resultpage="/resultpage";
 }

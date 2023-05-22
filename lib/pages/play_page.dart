@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:english_quiz/database/Database.dart';
 import 'package:english_quiz/model/answer.dart';
 import 'package:english_quiz/model/quiz.dart';
-import 'package:english_quiz/pages/home_page.dart';
 import 'package:english_quiz/pages/result_page.dart';
 import 'package:english_quiz/utils/color.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +13,12 @@ import '../utils/font.dart';
 
 // ignore: must_be_immutable
 class PlayPage extends StatefulWidget {
-  Quiz quiz;
-  List<Question> listQuestions;
+  Quiz? quiz;
+  List<Question>? listQuestions;
   PlayPage({
     Key? key,
-    required this.quiz,
-    required this.listQuestions,
+    this.quiz,
+    this.listQuestions,
   }) : super(key: key);
 
   @override
@@ -48,8 +47,8 @@ class _PlayPageState extends State<PlayPage> {
   @override
   void initState() {
     super.initState();
-    //
-    questionsLength = widget.listQuestions.length;
+
+    questionsLength = widget.listQuestions!.length;
     //
     right = questionsLength;
     //
@@ -67,14 +66,14 @@ class _PlayPageState extends State<PlayPage> {
   @override
   void dispose() {
     super.dispose();
-    for (int i = 0; i < widget.listQuestions.length; i++) {
-      Database().deleteAnswerByQuestions(widget.listQuestions.elementAt(i));
+    for (int i = 0; i < widget.listQuestions!.length; i++) {
+      Database().deleteAnswerByQuestions(widget.listQuestions!.elementAt(i));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    question = widget.listQuestions.elementAt(i);
+    question = widget.listQuestions!.elementAt(i);
     return SafeArea(
       child: Scaffold(
           backgroundColor: kbackgroundColor,
@@ -107,12 +106,10 @@ class _PlayPageState extends State<PlayPage> {
       leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => const MyHomePage(),
-            ));
+            Navigator.of(context).pop();
           }),
       centerTitle: true,
-      title: Text(widget.quiz.name,
+      title: Text(widget.quiz!.name,
           style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -227,7 +224,7 @@ class _PlayPageState extends State<PlayPage> {
                 borderRadius: BorderRadius.circular(90)),
             child: Center(
               child: Text(
-                (i >= widget.listQuestions.length - 1) ? "Finish" : "Next",
+                (i >= widget.listQuestions!.length - 1) ? "Finish" : "Next",
                 style: const TextStyle(
                     fontSize: titleFontSize, color: Colors.white),
               ),
@@ -264,11 +261,11 @@ class _PlayPageState extends State<PlayPage> {
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => ResultPage(
-                                    listQuestions: widget.listQuestions,
-                                    quiz: widget.quiz,
+                                    listQuestions: widget.listQuestions!,
+                                    quiz: widget.quiz!,
                                     timePlay: timePlay,
                                   )),
-                          (route) => false);
+                          (route) => route.isFirst);
                     },
                     child: Container(
                       // width: 150,
@@ -292,7 +289,6 @@ class _PlayPageState extends State<PlayPage> {
                       Navigator.of(context).pop();
                     },
                     child: Container(
-                      // width: 150,
                       height: 60,
                       margin: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
