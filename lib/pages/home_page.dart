@@ -354,6 +354,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           .getQuestionsByQuizId(quiz.id);
 
                                       setState(() {
+                                        canTap=!canTap;
                                         questionsList = Database()
                                             .loadData('$questionsDB${quiz.id}');
                                       });
@@ -382,12 +383,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   color: Colors.grey,
                                 ))
                             : const SizedBox(
-                                width: 20,
-                                height: 20,
+                                width: 25,
+                                height: 25,
                                 child: Center(
-                                    child: CircularProgressIndicator(
-                                  backgroundColor: Colors.grey,
-                                )))
+                                  child: CircularProgressIndicator(
+                                    backgroundColor: Colors.grey,
+                                  ),
+                                ))
                         : Container(
                             margin: const EdgeInsets.symmetric(horizontal: 10),
                             child: Text(
