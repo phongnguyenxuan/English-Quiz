@@ -352,18 +352,20 @@ class _ResultPageState extends State<ResultPage> {
                               margin: const EdgeInsets.all(10),
                               height: 50,
                               decoration: BoxDecoration(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(90)),
-                                border: Border.all(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(90)),
+                                  border: Border.all(
                                     width: 2,
                                     color: answerChoice != null
-                                        ? answer.correct == 1
-                                            ? Colors.greenAccent.shade400
-                                            : Colors.redAccent.shade400
-                                        : answer.correct == 1
-                                            ? Colors.greenAccent.shade400
-                                            : Colors.grey),
-                              ),
+                                        ? answerChoice.id == answer.id
+                                            ? answerChoice.correct == 1
+                                                ? Colors.greenAccent
+                                                : Colors.redAccent
+                                            : answer.correct == 1
+                                                ? Colors.greenAccent
+                                                : Colors.grey
+                                        : Colors.grey,
+                                  )),
                               child: Center(
                                 child: Text(
                                   answer.content,
