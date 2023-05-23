@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../model/quiz.dart';
 import '../utils/constant_value.dart';
-import '../widget/side_item.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -39,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //
   List<bool> isLoading = [];
   //
-  bool canTap=true;
+  bool canTap = true;
   //check internet
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -223,6 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
             //image background
             Image.asset(
               'assets/images/drawer_background.png',
+              width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
             ),
@@ -238,9 +238,25 @@ class _MyHomePageState extends State<MyHomePage> {
                       categoryID = categoryList.elementAt(index).id;
                       quizList =
                           List.from(Database().loadData('$quizDB$categoryID'));
+                      isLoading =
+                          List.generate(quizList.length, (index) => false);
                     });
                   },
-                  title: SideItem(title: categoryList.elementAt(index).name),
+                  leading: const Icon(
+                    Icons.library_books_rounded,
+                    color: Colors.white,
+                  ),
+                  title: Text(
+                    categoryList.elementAt(index).name,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: const TextStyle(
+                        color: Colors.white, fontSize: bodyFontSize),
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                  ),
                 );
               },
             ),
@@ -301,8 +317,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: (Database().loadData('$questionsDB${quiz.id}') !=
                               null)
                           ? () {
-                              questionsList = List.from(
-                                  Database().loadData('$questionsDB${quiz.id}'));
+                              questionsList = List.from(Database()
+                                  .loadData('$questionsDB${quiz.id}'));
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                     settings: const RouteSettings(
@@ -316,7 +332,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             }
                           : null,
                       contentPadding: const EdgeInsets.all(8),
-                      
                       leading: Container(
                         width: 60,
                         height: 60,
@@ -344,44 +359,51 @@ class _MyHomePageState extends State<MyHomePage> {
                               null
                           ? !isLoading[index]
                               ? IconButton(
-                                  onPressed: canTap?() async {
-                                    try {
-                                      if (_connectionStatus.name == "none") {
-                                        errorDialog(context, quiz);
-                                      } else {
-                                        setState(() {
-                                          canTap=!canTap;
-                                          isLoading[index] = !isLoading[index];
-                                        });
-            
-                                        await Database()
-                                            .getQuestionsByQuizId(quiz.id);
-            
-                                        setState(() {
-                                          canTap=!canTap;
-                                          questionsList = Database()
-                                              .loadData('$questionsDB${quiz.id}');
-                                        });
-                                        if (route!.settings.name == "/homepage" &&
-                                            context.mounted) {
-                                          Navigator.of(context)
-                                              .pushAndRemoveUntil(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PlayPage(
-                                                      quiz: quiz,
-                                                      listQuestions:
-                                                          questionsList,
-                                                    ),
-                                                  ),
-                                                  ModalRoute.withName(
-                                                      "/homepage"));
-                                        } else {
-                                          return;
+                                  onPressed: canTap
+                                      ? () async {
+                                          try {
+                                            if (_connectionStatus.name ==
+                                                "none") {
+                                              errorDialog(context, quiz);
+                                            } else {
+                                              setState(() {
+                                                canTap = !canTap;
+                                                isLoading[index] =
+                                                    !isLoading[index];
+                                              });
+
+                                              await Database()
+                                                  .getQuestionsByQuizId(
+                                                      quiz.id);
+
+                                              setState(() {
+                                                canTap = !canTap;
+                                                questionsList = Database()
+                                                    .loadData(
+                                                        '$questionsDB${quiz.id}');
+                                              });
+                                              if (route!.settings.name ==
+                                                      "/homepage" &&
+                                                  context.mounted) {
+                                                Navigator.of(context)
+                                                    .pushAndRemoveUntil(
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              PlayPage(
+                                                            quiz: quiz,
+                                                            listQuestions:
+                                                                questionsList,
+                                                          ),
+                                                        ),
+                                                        ModalRoute.withName(
+                                                            "/homepage"));
+                                              } else {
+                                                return;
+                                              }
+                                            }
+                                          } catch (_) {}
                                         }
-                                      }
-                                    } catch (_) {}
-                                  }:null,
+                                      : null,
                                   icon: const Icon(
                                     Icons.download,
                                     color: Colors.grey,
@@ -395,7 +417,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                   ))
                           : Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 10),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(
                                   '${Database().loadData('$scoreDB${quiz.id}')}/${Database().loadData('count${quiz.id}').toString()}'),
                             ));

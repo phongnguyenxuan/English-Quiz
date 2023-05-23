@@ -117,20 +117,20 @@ class _PlayPageState extends State<PlayPage> {
       }
     }
     if (questionsLength - i > 6) {
-      for(int j=i+1;j<i+7;j++){
-              if (isChoice[j]) {
-        outLength.add(Container(
-            height: 3,
-            width: 15,
-            margin: const EdgeInsets.all(5),
-            color: Colors.orange));
-      } else {
-        outLength.add(Container(
-            height: 3,
-            width: 15,
-            margin: const EdgeInsets.all(5),
-            color: kLevelColor));
-      }
+      for (int j = i + 1; j < i + 7; j++) {
+        if (isChoice[j]) {
+          outLength.add(Container(
+              height: 3,
+              width: 15,
+              margin: const EdgeInsets.all(5),
+              color: Colors.orange));
+        } else {
+          outLength.add(Container(
+              height: 3,
+              width: 15,
+              margin: const EdgeInsets.all(5),
+              color: kLevelColor));
+        }
       }
       return outLength;
     }
@@ -152,18 +152,22 @@ class _PlayPageState extends State<PlayPage> {
               //questions
               Padding(
                 padding: const EdgeInsets.only(
-                    top: 20, bottom: 10, right: 20, left: 20),
+                    top: 10, bottom: 10, right: 20, left: 20),
                 child: Text(
                   question.content,
+                  maxLines: 2,
                   style: const TextStyle(
                       fontSize: titleFontSize, fontWeight: FontWeight.w500),
                 ),
               ),
-              answer(),
-              const Spacer(),
-              SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: footer(context, question))
+            Expanded(child: answer()),
+           // const Spacer(),
+              Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: footer(context, question),
+                ),
+              )
             ],
           )),
     );
@@ -183,35 +187,38 @@ class _PlayPageState extends State<PlayPage> {
               fontWeight: FontWeight.bold,
               fontSize: titleFontSize)),
       bottom: PreferredSize(
-          preferredSize: const Size(0, 50),
+          preferredSize: const Size(0, 25),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: _left()),
-                ),
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                      color: isChoice[i] ? Colors.orange : Colors.white,
-                      shape: BoxShape.circle),
-                  child: Center(
-                      child: Text(
-                    "${i + 1}",
-                    style: TextStyle(
-                      color: isChoice[i] ? Colors.white : kPrimaryColor,
-                    ),
-                  )),
-                ),
-                Expanded(
-                  child: Row(children: _right()),
-                ),
-              ],
+            child: FractionallySizedBox(
+              widthFactor: MediaQuery.of(context).size.width,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: _left()),
+                  ),
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                        color: isChoice[i] ? Colors.orange : Colors.white,
+                        shape: BoxShape.circle),
+                    child: Center(
+                        child: Text(
+                      "${i + 1}",
+                      style: TextStyle(
+                        color: isChoice[i] ? Colors.white : kPrimaryColor,
+                      ),
+                    )),
+                  ),
+                  Expanded(
+                    child: Row(children: _right()),
+                  ),
+                ],
+              ),
             ),
           )),
     );
@@ -360,48 +367,50 @@ class _PlayPageState extends State<PlayPage> {
   }
 
   Widget answer() {
-    return Column(
-        children: List<Widget>.generate(question.answers.length, (j) {
-      Answer answer = question.answers.elementAt(j);
-      Answer? answerChoice = Database().loadData(question.id.toString());
-      return GestureDetector(
-        onTap: !onTap
-            ? () {
-                setState(() {
-                  onTap = !onTap;
-                  isChoice[i] = true;
-                  isClick[j] = !isClick[j];
-                });
-                Future.delayed(const Duration(milliseconds: 500), () async {
-                  isClick[j] = !isClick[j];
-                  Database().updateAnswerByQuestions(question, answer);
-                  nextQuestion(context, answer);
-                  onTap = !onTap;
-                });
-              }
-            : null,
-        child: Container(
-          constraints: BoxConstraints(
-              minWidth: MediaQuery.of(context).size.width, maxHeight: 40),
-          margin: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(
-                  color: answerChoice == null
-                      ? isClick[j]
-                          ? kPrimaryColor
-                          : Colors.grey
-                      : answerChoice.id == answer.id
-                          ? kPrimaryColor
-                          : Colors.grey),
-              borderRadius: BorderRadius.circular(90)),
-          child: Center(
-              child: Text(
-            answer.content,
-            style: const TextStyle(fontSize: bodyFontSize),
-          )),
-        ),
-      );
-    }));
+    return SingleChildScrollView(
+      child: Column(
+          children: List<Widget>.generate(question.answers.length, (j) {
+        Answer answer = question.answers.elementAt(j);
+        Answer? answerChoice = Database().loadData(question.id.toString());
+        return GestureDetector(
+          onTap: !onTap
+              ? () {
+                  setState(() {
+                    onTap = !onTap;
+                    isChoice[i] = true;
+                    isClick[j] = !isClick[j];
+                  });
+                  Future.delayed(const Duration(milliseconds: 500), () async {
+                    isClick[j] = !isClick[j];
+                    Database().updateAnswerByQuestions(question, answer);
+                    nextQuestion(context, answer);
+                    onTap = !onTap;
+                  });
+                }
+              : null,
+          child: Container(
+            constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width, maxHeight: 40),
+            margin: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(
+                    color: answerChoice == null
+                        ? isClick[j]
+                            ? kPrimaryColor
+                            : Colors.grey
+                        : answerChoice.id == answer.id
+                            ? kPrimaryColor
+                            : Colors.grey),
+                borderRadius: BorderRadius.circular(90)),
+            child: Center(
+                child: Text(
+              answer.content,
+              style: const TextStyle(fontSize: bodyFontSize),
+            )),
+          ),
+        );
+      })),
+    );
   }
 }
