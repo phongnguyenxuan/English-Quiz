@@ -160,8 +160,7 @@ class _PlayPageState extends State<PlayPage> {
                       fontSize: titleFontSize, fontWeight: FontWeight.w500),
                 ),
               ),
-            Expanded(child: answer()),
-           // const Spacer(),
+              Expanded(child: answer()),
               Center(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -240,7 +239,7 @@ class _PlayPageState extends State<PlayPage> {
                 },
           child: Container(
             width: 150,
-            height: 60,
+            height: 50,
             margin: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
                 color: Colors.transparent,
@@ -263,7 +262,7 @@ class _PlayPageState extends State<PlayPage> {
           },
           child: Container(
             width: 150,
-            height: 60,
+            height: 50,
             margin: const EdgeInsets.all(20),
             decoration: BoxDecoration(
                 color: kPrimaryColor,
@@ -316,7 +315,7 @@ class _PlayPageState extends State<PlayPage> {
                     },
                     child: Container(
                       // width: 150,
-                      height: 60,
+                      height: 50,
                       margin: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                           color: kPrimaryColor,
@@ -326,7 +325,7 @@ class _PlayPageState extends State<PlayPage> {
                         child: Text(
                           'Check my answer',
                           style: TextStyle(
-                              fontSize: titleFontSize, color: Colors.white),
+                              fontSize: bodyFontSize, color: Colors.white),
                         ),
                       ),
                     ),
@@ -336,7 +335,7 @@ class _PlayPageState extends State<PlayPage> {
                       Navigator.of(context).pop();
                     },
                     child: Container(
-                      height: 60,
+                      height: 50,
                       margin: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                           color: Colors.transparent,
@@ -346,7 +345,7 @@ class _PlayPageState extends State<PlayPage> {
                         child: Text(
                           'Cancel',
                           style: TextStyle(
-                              fontSize: titleFontSize, color: Colors.black),
+                              fontSize: bodyFontSize, color: Colors.black),
                         ),
                       ),
                     ),
