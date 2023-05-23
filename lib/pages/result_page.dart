@@ -364,7 +364,9 @@ class _ResultPageState extends State<ResultPage> {
                                             : answer.correct == 1
                                                 ? Colors.greenAccent
                                                 : Colors.grey
-                                        : Colors.grey,
+                                        : answer.correct == 1
+                                            ? Colors.greenAccent
+                                            : Colors.grey,
                                   )),
                               child: Center(
                                 child: Text(

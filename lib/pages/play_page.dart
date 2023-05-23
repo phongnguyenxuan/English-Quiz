@@ -36,8 +36,6 @@ class _PlayPageState extends State<PlayPage> {
   //
   int timePlay = 0;
   //
-  int left = 0;
-  //
   int questionsLength = 0;
   //
   int right = 0;
@@ -71,6 +69,74 @@ class _PlayPageState extends State<PlayPage> {
     }
   }
 
+  // //left
+  List<Widget> _left() {
+    List<Widget> leftSide = [];
+    List<Widget> outLength = [];
+    for (int j = 0; j < i; j++) {
+      if (isChoice[j]) {
+        leftSide.add(Container(
+            height: 3,
+            width: 15,
+            margin: const EdgeInsets.all(5),
+            color: Colors.orange));
+      } else {
+        leftSide.add(Container(
+            height: 3,
+            width: 15,
+            margin: const EdgeInsets.all(5),
+            color: kLevelColor));
+      }
+    }
+    if (i > 6) {
+      for (int k = i - 6; k < i; k++) {
+        outLength.add(leftSide.elementAt(k));
+      }
+      return outLength;
+    }
+    return leftSide;
+  }
+
+  //right
+  List<Widget> _right() {
+    List<Widget> rightSide = [];
+    List<Widget> outLength = [];
+    for (int j = i + 1; j < questionsLength; j++) {
+      if (isChoice[j]) {
+        rightSide.add(Container(
+            height: 3,
+            width: 15,
+            margin: const EdgeInsets.all(5),
+            color: Colors.orange));
+      } else {
+        rightSide.add(Container(
+            height: 3,
+            width: 15,
+            margin: const EdgeInsets.all(5),
+            color: kLevelColor));
+      }
+    }
+    if (questionsLength - i > 6) {
+      for(int j=i+1;j<i+7;j++){
+              if (isChoice[j]) {
+        outLength.add(Container(
+            height: 3,
+            width: 15,
+            margin: const EdgeInsets.all(5),
+            color: Colors.orange));
+      } else {
+        outLength.add(Container(
+            height: 3,
+            width: 15,
+            margin: const EdgeInsets.all(5),
+            color: kLevelColor));
+      }
+      }
+      return outLength;
+    }
+    return rightSide;
+  }
+
   @override
   Widget build(BuildContext context) {
     question = widget.listQuestions!.elementAt(i);
@@ -95,7 +161,9 @@ class _PlayPageState extends State<PlayPage> {
               ),
               answer(),
               const Spacer(),
-              footer(context, question)
+              SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: footer(context, question))
             ],
           )),
     );
@@ -123,18 +191,8 @@ class _PlayPageState extends State<PlayPage> {
               children: [
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: List.generate(i, (index) {
-                      if (index > 5) {
-                        return Container();
-                      }
-                      return Container(
-                          height: 3,
-                          width: 15,
-                          margin: const EdgeInsets.all(5),
-                          color: kLevelColor);
-                    }),
-                  ),
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: _left()),
                 ),
                 Container(
                   width: 30,
@@ -151,19 +209,7 @@ class _PlayPageState extends State<PlayPage> {
                   )),
                 ),
                 Expanded(
-                  child: Row(
-                    children:
-                        List.generate(questionsLength - left - 1, (index) {
-                      if (index > 5) {
-                        return Container();
-                      }
-                      return Container(
-                          height: 3,
-                          width: 15,
-                          margin: const EdgeInsets.all(5),
-                          color: kLevelColor);
-                    }),
-                  ),
+                  child: Row(children: _right()),
                 ),
               ],
             ),
@@ -183,18 +229,12 @@ class _PlayPageState extends State<PlayPage> {
                     setState(() {
                       i -= 1;
                     });
-                    if (left < questionsLength) {
-                      left--;
-                      if (i <= questionsLength ~/ 2) {
-                        right++;
-                      }
-                    }
                   }
                 },
           child: Container(
             width: 150,
             height: 60,
-            margin: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
                 color: Colors.transparent,
                 border: Border.all(color: kPrimaryColor),
@@ -315,10 +355,6 @@ class _PlayPageState extends State<PlayPage> {
         setState(() {
           i += 1;
         });
-        if (left < questionsLength) {
-          ++left;
-          right--;
-        }
       }
     }
   }
